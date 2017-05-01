@@ -4,7 +4,9 @@ title: 机器学习1 Linear Regression
 date: 2017-05-01 
 tag: 机器学习
 ---   
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
 
+<<<<<<< HEAD
   这是学习斯坦福大学Machine Learning课程的第一次笔记，内容有单变量线性回归和多变量线性回归。
 
 ### 单变量线性回归
@@ -13,3 +15,11 @@ tag: 机器学习
   $$x^3_2$$
 	
     
+=======
+   这是学习斯坦福大学Machine Learning课程的第一次笔记，内容有单变量线性回归和多变量线性回归。
+
+### 单变量线性回归
+	
+$x^i$
+    
+>>>>>>> 0841297f938da922648c689276567a06fbad3c88
