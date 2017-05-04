@@ -128,7 +128,7 @@ def compose1(f, g):
 
 ### First-Class Element
 
-*> They may be bound to names.
-*> They may be passed as arguments to functions.
-*> They may be returned as the results of functions.
-*> They may be included in data structures.
+>* 1. They may be bound to names.
+>* 2. They may be passed as arguments to functions.
+>* 3. They may be returned as the results of functions.
+>* 4. They may be included in data structures.
