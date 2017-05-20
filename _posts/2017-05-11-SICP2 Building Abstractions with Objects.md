@@ -259,3 +259,479 @@ that will be extended by future calls to withdraw.
 *  Non-local assignment has given us the ability to maintain some state that is local to a function, but evolves over successive calls to that function.
 
 ### A functional implemention of list
+
+```
+def make_mutable_rlist():
+    """Return a functional implementation of a mutable recursive lsit."""
+    contents = empty_rlist
+    def dispatch(message, value=None):
+        nonlocal contents
+        if message == 'len':
+            return len_rlist(contents)
+        elif message = 'getitem':
+            return getitem_rlist(contents, value)
+        elif message == 'push_first':
+            contents = make_rlist(value, contents)
+        elif message == 'pop_first':
+            f = first(contents)
+            contents = rest(contents)
+            return f
+        elif message == 'str':
+            return str(contents)
+    return dispatch
+
+def to_mutable_rlist(source):
+    """Return a functional list with the same contents as source."""
+    s = make_mutable_rlist()
+    for element in reversed(source):
+        s('push_first', element)
+    return s
+```
+
+### Dictionaries
+
+* The methods keys, values and items all return iterable values.
+
+* A list of key-value pairs can be converted into a dictionary by calling the dict constructor function. dict([(3, 9), (4, 16), (5, 25)])
+
+```
+def make_dict():
+    """Return a functional implementation of a dictionary."""
+    records = []
+    def getitem(key):
+        for k, v in records:
+            if k == key:
+                return v
+    def setitem(key, value):
+        for item in records:
+            if item[0] == key:
+                item[1] = value
+                return
+        records.append([key, value])
+    def dispatch(message, key=None, value=None):
+        if message == 'getitem':
+            return getitem(key)
+        elif message = 'setitem':
+            setitem(key, value)
+        elif message = 'keys':
+            return tuple(k for k, _ in records)
+        elif message == 'values':
+            return tuple(v for _, v in records)
+    return dispatch
+```
+
+### Example: Propagating Constraints (A constraint-based system)
+
+* Expressing programs as constraints is a type of declarative programming, in which a programmer declares the structure of a problem to be solved, but abstracts away the details of exactly how the solution to the problem is computed.
+
+* Computation by such a network proceeds as follows: When a connector is given a value (by the user or by a constraint box to which it is linked), it awakens all of its associated constraints (except for the constraint that just awakened it) to inform them that it has a value. Each awakened constraint box then polls its connectors to see if there is enough information to determine a value for a connector. If so, the box sets that connector, which then awakens all of its associated constraints, and so on.
+
+* The relationship between Fahrenheit and Celsius temperatures: 9 * c = 5 * (f - 32)
+
+```
+celsius = make_connector('Celsius')
+fahrenheit = make_connector('Fahrenheit')
+
+def make_converter(c, f)
+    """Connect c to f with contraints to convert from Celsius to Fahrenheit."""
+    u, v, w, x, y = [make_connector() for _ in range(5)]
+    multiplier(c, w, u)
+    multiplier(v, x, u)
+    addre( v, y, f)
+    constant(w, 9)
+    constant(x, 5)
+    constant(y, 32)
+
+make_converter(celsius, fahrenheit)
+```
+
+* This non-directionality of computation is the distinguishing feature of constraint-based systems.
+
+```
+from operator import add, sub
+    def adder(a, b, c):
+        """The constraint that a + b = c."""
+        return make_ternary_contraint(a, b, c, add, sub, sub)
+def make_ternary_contraint(a, b, c, ab, ca, cb):
+    """The connstraint that ab(a,b)=c and ca(c,a)=b and cb(c,b)=a."""
+    def new_value():
+        av, bv, cv = [connector['has_val']() for connector in (a, b, c)]
+        if av and bv:
+            c['set_val'](contraint, ab(a['val'], b['val']))
+        elif av and cv:
+            b['set_val'](contraint, ca(c['val'], b['val']))
+        elif bv and cv:
+            a['set_val'](contraint, cb(c['val'], b['val']))
+    def forget_value():
+        for connector in (a, b, c):
+            connector['forget'](contraint)
+    contraint = {'new_val': new_value, 'forget': forget_value}
+    for connector in (a, b, c):
+        connector['connect'](contraint)
+    return constraint
+```
+
+```
+from operator import mul, truediv
+def multiplier(a, b, c):
+    """The constraint that a * b = c."""
+    return make_ternary_constraint(a, b, c, mul, truediv, truediv)
+
+def constant(connector, value):
+    """The constraint that connector = value."""
+    constaint = {}
+    connector['set_val'](constraint, value)
+    return constraint
+
+
+def make_connector(name=None):
+    """A connector between constraints."""
+    informant = None
+    constraints = []
+    def set_value(source, value):
+        nonlocal informant
+        val = connector['val']
+        if val is None:
+            informant, connector['val'] = source, value
+            if name is not None:
+                print(name, '=', value)
+            inform_all_except(source, 'new_val', constraints)
+        else:
+            if val != value":
+                print('Contradiction detected:', val, 'vs', value)
+    def forget_value(source):
+        nonlocal informant
+        if informant == source:
+            informant, connector['val'] = None, None
+            if name is not None:
+                print(name, 'is forgotten')
+            inform_all_except(source, 'forget', constraints)
+    connector = {'val': None,
+                'set_val': set_value,
+                'forget': forget_value,
+                'has_val': lambda: connector['val'] is not None,
+                'connect': lambda source: constraints.append(source)}
+    return connector
+
+
+def inform_all_except(source, message, constraints):
+    """Inform all constraints of the message, except source."""
+    for c in constraints:
+        if c != source:
+            c[message]()           
+```
+
+### OOP
+
+```
+class Account(object):
+    def __init__(self, account_holder):
+        self.balance = 0
+        self.holder = account_holder
+    def deposit(self, amount):
+        self.balance = self.balance + amount
+        return self.balance
+    def withdraw(self, amount):
+        if amount > self.balance:
+            return 'Insufficient funds'
+        self.balance -= amount
+        return self.balance
+```
+
+### Message Passing and Dot Expressions
+
+* Dot notation is a syntactic feature of Python that formalizes the message passing metaphor. 
+
+* The built-in function getattr also returns an attribute for an object by name. It is the function equivalent of dot notation. Using getattr, we can look up an attribute using a string, just as we did with a dispatch dictionary. getattr(tom_account, 'balance')
+
+* We can also test whether an object has a named attribute with hasattr. hasattr(tom_account, 'deposit')
+
+* To achieve automatic self binding, Python distinguishes between functions, which we have been creating since the beginning of the course, and bound methods, which couple together a function and the object on which that method will be invoked. A bound method value is already associated with its first argument, the instance on which it was invoked, which will be named self when the method is called.
+
+
+### Class Attributes
+
+* Class attributes are created by assignment statements in the suite of a class statement, outside of any method definition.
+
+* A single assignment statement to a class attribute changes the value of the attribute for all instances of the class.
+
+* All assignment statements that contain a dot expression on their left-hand side affect attributes for the object of that dot expression. If the object is an instance, then assignment sets an instance attribute. If the object is a class, then assignment sets a class attribute. As a consequence of this rule, assignment to an attribute of an object cannot affect the attributes of its class. 
+
+### Inheritance
+
+```
+class CheckingAccount(Account):
+        """A bank account that charges for withdrawals."""
+        withdraw_charge = 1
+        interest = 0.01
+        def withdraw(self, amount):
+            return Account.withdraw(self, amount + self.withdraw_charge)
+```
+
+* The class of an object stays constant throughout. Even though the deposit method was found in the Account class, deposit is called with self bound to an instance of CheckingAccount, not of Account.
+
+* Calling ancestors. Attributes that have been overridden are still accessible via class objects. For instance, we implemented the withdraw method of CheckingAccount by calling the withdraw method of Account with an argument that included the withdraw_charge.
+
+* Notice that we called self.withdraw_charge rather than the equivalent CheckingAccount.withdraw_charge. The benefit of the former over the latter is that a class that inherits from CheckingAccount might override the withdrawal charge. If that is the case, we would like our implementation of withdraw to find that new value instead of the old one.
+
+### The Role of Objects
+
+* On the other hand, classes may not provide the best mechanism for implementing certain abstractions. Functional abstractions provide a more natural metaphor for representing relationships between inputs and outputs. One should not feel compelled to fit every bit of logic in a program within a class, especially when defining independent functions for manipulating data is more natural. Functions can also enforce a separation of concerns.
+
+* Multi-paradigm languages like Python allow programmers to match organizational paradigms to appropriate problems. Learning to identify when to introduce a new class, as opposed to a new function, in order to simplify or modularize a program, is an important design skill in software engineering that deserves careful attention.
+
+### Implementing Classes and Objects
+
+* Using the object metaphor does not require a special programming language. Programs can be object-oriented, even in programming languages that do not have a built-in object system. 
+
+* As we have seen previously in this chapter, dictionaries themselves are abstract data types. We implemented dictionaries with lists, we implemented lists with pairs, and we implemented pairs with functions. As we implement an object system in terms of dictionaries, keep in mind that we could just as well be implementing objects using functions alone.
+
+### Instances
+
+```
+def make_instance(cls):
+    """Return a new object instance, which is a dispatch dictionary."""
+    def get_value(name):
+        if name in attributes:
+            return attributes[name]
+        else:
+            value = cls['get'](name)
+            return bind_method(value, instance)
+    def set_value(name, value):
+        attributes[name] = value
+    attributes = {}
+    instance = {'get': get_value, 'set': set_value}
+    return instance
+
+
+def bind_method(value, instance):
+    """Return a bound method if value is callable, or value otherwise."""
+    if callable(value):
+        def method(*args):
+            return value(instance, *args)
+        return method
+    else:
+        return value
+```
+
+### Classes
+
+```
+def make_class(attributes, base_class=None):
+    """Return a new class, which is a dispatch dictionary."""
+    def get_value(name):
+        if name in attributes:
+            return attributes[name]
+        elif base_class is not None:
+            return base_class['get'](name)
+    def set_value(name, value):
+        attributes[name] = value
+    def new(*args):
+        return init_instance(cls, *args)
+    cls = {'get': get_value, 'set': set_value, 'new': new}
+    return cls
+
+
+def init_instance(cls, *args):
+    """Return a new object with type cls, initialized with args."""
+    instance = make_instance(cls)
+    init = cls['get']('__init__')
+    if init:
+        init(instance, *args)
+    return instance
+```
+
+### Using Implemented Objects
+
+```
+def make_account_class():
+    """Return the Account class, which has deposit and withdraw methods."""
+    def __init__(self, account_holder):
+        self['set']('holder', account_holder)
+        self['set']('balance', 0)
+    def deposit(self, amount):
+        """Increase the account balance by amount and return the new balance."""
+        new_balance = self['get']('balance') + amount
+        self['set']('balance', new_balance)
+        return self['get']('balance')
+    def withdraw(self, amount):
+        """Decrease the account balance by amount and return the new balance."""
+        balance = self['get']('balance')
+        if amount > balance:
+            return 'Insufficient funds'
+        self['set']('balance', balance-amount)
+        return self['get']('balance')
+    return amke_class({'__init__': __init__,
+                       'deposit': deposit,
+                       'withdraw': withdraw,
+                       'interest': 0.02})
+
+
+Account = make_account_class()
+jim_acct = Account['new']('Jim')
+jim_acct['get']('holder')
+jim_acct['get']('interest')
+jim_acct['get']('deposit')(20)
+jim_acct['get']('withdraw')(5)
+
+
+def make_checking_account_class():
+    """Return the CheckingAccount class, which imposes a $1 withdrawal fee."""
+    def withdraw(self, amount):
+        return Account['get']('withdraw')(self, amount + 1)
+    return make_class({'withdraw': withdraw, 'interest': 0.01}, Account)
+```
+
+### Generic Operations: In this section, we explore alternate methods for combining and manipulating objects of different types.
+
+### String Conversion
+
+* repr(object) -> string Return the canonical string representation of the object. For most object types, eval(repr(object)) == object.
+
+* The result of calling repr on the value of an expression is what Python prints in an interactive session.
+
+* Message passing provides an elegant solution in this case: the repr function invokes a method called __repr__ on its argument. The str constructor is implemented in a similar manner: it invokes a method called __str__ on its argument.
+
+### Multiple Representations
+
+```
+def add_complex(z1, z2):
+    return ComplexRI(z1.real + z2.real, z1.imag + z2.imag)
+
+def mul_complex(z1, z2):
+    return ComplexMA(z1.magnitude * z2.magnitude, z1.angle + z2.angle)
+```
+
+* Conceptually, an ADT describes a full representational abstraction of some kind of thing, whereas an interface specifies a set of behaviors that may be shared across many things.
+
+* Python has a simple feature for computing attributes on the fly from zero-argument functions. The @property decorator allows functions to be called without the standard call expression syntax. 
+
+```
+from math import atan2
+class ComplexRI(object):
+    def __init__(self, real, imag):
+        self.real = real
+        self.imag = imag
+    @property
+    def magnitude(self):
+        return (self.real ** 2 + self.imag ** 2) ** 0.5
+    @property
+    def angle(self):
+        return atan2(self.imag, self.real)
+    def __repr__(self):
+        return 'ComplexRI({0}, {1}'.format(self.real, self.imag)
+```
+
+* A second implementation using magnitude and angle provides the same interface because it responds to the same set of messages.
+
+```
+from math import sin, cos
+class ComplexMA(object):
+    def __init__(slef, magnitude, angle):
+        self.magnitude = magnitude
+        self.angle = angle
+    @property
+    def real(self):
+        return self.magnitude * cos(self.angle)
+    @property
+    def imag(self):
+        return self.agnitude * sin(self.angle)
+    def __repr(self):
+        return 'ComplexMA({0}, {1})'.format(self.magnitude, self.angle)
+```
+
+* In fact, our implementations of add_complex and mul_complex are now complete; either class of complex number can be used for either argument in either complex arithmetic function. It is worth noting that the object system does not explicitly connect the two complex types in any way (e.g., through inheritance). We have implemented the complex number abstraction by sharing a common set of messages, an interface, across the two classes.
+
+```
+from math import pi
+add_complex(ComplexRI(1, 2), complexMA(2, pi/2))
+mul_complex(ComplexRI(0, 1), complexRI(0, 1))
+```
+
+* The class for each representation can be developed separately; they must only agree on the names of the attributes they share.
+
+```
+ComplexRI.__add__ = lambda self, other: add_complex(self, other)
+ComplexMA.__add__ = lambda self, other: add_complex(self, other)
+ComplexRI.__mul__ = lambda self, other: mul_complex(self, other)
+ComplexMA.__mul__ = lambda self, other: mul_complex(self, other)
+```
+
+### Generic Functions
+
+* Define operations that are generic over different kinds of arguments that do not share a common interface.
+
+```
+from fractions import gcd
+class Rational(object): 
+    def __init__(self, numer, denom):
+        g = gcd(numer, denom)
+        self.numer = numer // g
+        self.denom = denom // g
+    def __repr__(self):
+        return 'Rational({0}, {1})'.format(self.numer, self.denom)
+
+def add_rational(x, y):
+    nx, dx = x.numer, x.denom
+    ny, dy = y.numer, y.denom
+    return Rational(nx * dy + ny * dx, dx * dy)
+
+def mul_rational(x, y):
+    return Rational(x.numer * y.numer, x.denom * y.denom)
+
+def add(z1, z2):
+    """Add z1 and z2, which may be complex or rational."""
+    if iscomplex(z1) and iscomplex(z2):
+        return add_complex(z1, z2)
+    elif iscomplex(z1) and isrational(z2):
+        return add_complex_and_rational(z1, z2)
+    elif isrational(z1) and iscomplex(z2):
+        return add_complex_and_rational(z2, z1)
+    else:
+        return add_rational(z1, z2)
+
+
+def type_tag(x):
+    return type_tag.tags[type(x)]
+
+type_tag.tags = {ComplexRI: 'com', ComplexMA: 'com', Rational: 'rat'}
+
+def add(z1, z2):
+    types = (type_tag(z1), type_tag(z2))
+    return add.implementations[types](z1, z2)
+
+add.implementations = {}
+add.implementations[('com', 'com')] = add_complex
+add.implementations[('com', 'rat')] = add_complex_and_rational
+add.implementations[('rat', 'com')] = lambda x, y: add_complex_and_rational(y, x)
+add.implementations[('rat', 'rat')] = add_rational
+```
+
+* A more general version of generic arithmetic would apply arbitrary operators to arbitrary types and use a dictionary to store implementations of various combinations. This fully generic approach to implementing methods is called data-directed programming. In our case, we can implement both generic addition and multiplication without redundant logic.
+
+### Coerce
+
+```
+def rational_to_complex(x):
+    return ComplexRI(x.numer/x.denom, 0)
+
+coercions = {('rat', 'com'): rational_to_complex}
+
+def coerce_apply(operator_name, x, y):
+    tx, ty = type_tag(x), type_tag(y)
+    if tx != ty:
+        if (tx, ty) in coercions:
+            tx, x = ty, coercions[(tx, ty)](x)
+        elif (ty, tx) in coercions:
+            ty, y = tx, coercions[(ty, tx)](y)
+        else:
+            return 'No coercion possible.'
+    key = (operator_name, tx)
+    return coerce_apply.implementations[key](x, y)
+
+
+coerce_apply.implementations = {('mul', 'com'): mul_complex,
+                                ('mul', 'rat'): mul_rational,
+                                ('add', 'com'): add_complex,
+                                ('add', 'rat'): add_rational}
+```
