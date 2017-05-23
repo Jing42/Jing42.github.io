@@ -5,7 +5,7 @@ date: 2017-05-22
 tag: Python
 ---   
 
-## 介绍
+## Introduction
 
 In this chapter, we turn to the problem of coordinating multiple computers and processors.
 
