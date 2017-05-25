@@ -52,7 +52,7 @@ tag: 算法
 
 * 递归式 $T(u) = T(\sqrt{u}) + O(1)$的解为 $T(u) = O(lglgu)$，将用这个递归式来指导数据结构上的查找。
 
-* 令 high(x) = $\lfoor{x/{\sqrt{u}}}\rfloor$, $low(x) = xmod{\sqrt{u}}$, index(x, y) = $x{\sqrt{u}} + y$
+* 令 high(x) = ${\lfoor{x/{\sqrt{u}}}\rfloor}$, $low(x) = xmod{\sqrt{u}}$, index(x, y) = $x{\sqrt{u}} + y$
 
 ### 20.2.1 原型 van Emde Boas 结构
 
