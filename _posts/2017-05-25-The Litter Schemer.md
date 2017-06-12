@@ -255,26 +255,25 @@ for which the answer is true are collected in a
 second list ls2 . Finally, it determines the
 value of (f ls1 l2).
 
-(define multiremberco
-  (lambda (a lat col)
-    (cond 
+(define multiremberCo
+  (lambda (a lat col
+    (cond
       ((null? lat)
        (col (quote ()) (quote ())))
       ((eq? (car lat) a)
-       (multiremberco a
+       (multiremberCo a
           (cdr lat)
           (lambda (newlat seen)
-              (col newlat
-                (cons (car lat) seen)))))
+            (col newlat
+              (cons (car lat) seen)))))
       (else
-        (muiltiremberco a
+        (multiremberCo a
           (cdr lat)
           (lambda (newlat seen)
             (col (cons (car lat) newlat)
-              seen)))))))
+              seen))))))))
 
-
-(define a friend
+(define a-friend
   (lambda (x y)
     (null? y)))
 
@@ -354,17 +353,148 @@ value of (f ls1 l2).
       (multiinsertLRco new oldL oldR
         (cdr lat)
         (lambda (newlat L R)
-        )))
+          (col (cons new
+                  (cons oldL newlat))
+                (add1 L) R))))
         ((eq? (car lat) oldR)
          (multiinsertLRco new oldL oldR
           (cdr lat)
           (lambda (newlat L R)
-          )))
+            (col (cons oldR (cons new newlat))
+              L (add1 R)))))
       (else
         (multiinsertLRco new oldL oldR
           (cdr lat)
           (lambda (newlat L R)
-          ))))))
+            (col (cons (car lat) newlat)
+              L R)))))))
+
+
+(define even?
+  (lambda (n)
+    (= (* (/ n 2) 2) n)))
+
+
+(define evens-only*)
+  (lambda (l)
+    (cond
+      ((null? l) (quote ()))
+      ((atom? (car l))
+       (cond
+        ((even? (car l))
+         (cons (car l)
+            (evens-only* (cdr l))))
+        (else (evens-only* (cdr l)))))
+      (else (cons (evens-only* (car l))
+              (evens-only* (cdr l)))))))
+
+
+(define evens-only*Co
+  (lambda (l col)
+    (cond
+      ((null? l)
+       (col (quote ()) 1 0))
+      ((atom? (car l))
+       (cond
+          ((even? (car l))
+            (evens-only*Co (cdr l)
+              (lambda (newl p s
+                (col (cons (car l) newl)
+                  (* (car l) p) s))))
+          (else (evens-only*Co (cdr l)
+              (lambda (newl p s)
+                (col newl
+                  p (+ (car l) s))))))))
+      (else (evens-only*Co (car l)
+          (lambda (al ap as)
+            (evens-only*Co (cdr l)
+              (lambda (dl dp ds)
+                (col (cons al dl)
+                  (* ap dp)
+                  (+ as ds))))))))))
+
+
+(define looking
+  (lambda (a lat)
+    (keep-looking a (pick 1 lat) lat)))
+
+
+(define keep-looking 
+  (lambda (a sorn lat)
+    (cond
+      ((number? sorn)
+       (keep-looking a (pick sorn lat) lat))
+      (else (eq? sorn a)))))
+
+
+(define eternity
+  (lambda (x)
+    (eternity x)))
+
+
+(define shift
+  (lambda (pair)
+    (build (first (first pair))
+      (build (second (first pair))
+        (second pair)))))
+
+
+(define align
+  (lambda (pora)
+    (cond
+      ((atom? pora) pora)
+      ((a-pair? (first pora))
+       (align (shift pora)))
+      (else (build (first pora
+              (align (second pora))))))))
+
+
+(define length*
+  (lambda (pora)
+    (cond
+      ((atom? pora) 1
+      (else
+        (+o (length* (first pora))
+            (length* (second pora))))))))
+
+
+(define weight*
+  (lambda (pora)
+    (cond
+      ((atom? pora) 1
+      (else
+        (+o (* (weight* (first pora)) 2)
+            (weight* (second pora))))))))
+
+
+(define shuffle
+  (lambda (pora)
+    (cond
+      ((atom? pora) pora)
+      ((a-pair? (first pora))
+       (shuffle (revpair pora)))
+      (else (build (first pora)
+              (shuffle (second pora)))))))
+
+
+(define C
+  (lambda (n)
+    (cond
+      ((one? n) 1)
+      (else
+        (cond
+          ((even? n) (C (/ n 2)))
+          (else (C (add1 (* 3 n)))))))))
+
+
+(define A
+  (lambda (n m)
+    (cond
+      ((zero? n) (add1 m))
+      ((zero? m) (A (sub1 n) 1))
+      (else (A (sub1 n)
+              (A n (sub1 m)))))))
+
 
 
 
